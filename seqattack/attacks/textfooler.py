@@ -15,10 +15,8 @@ from textattack.constraints.pre_transformation import (
 
 from textattack.constraints.semantics import WordEmbeddingDistance
 from textattack.constraints.semantics.sentence_encoders import UniversalSentenceEncoder
-from textattack.shared.attack import Attack
 from textattack.transformations import WordSwapEmbedding
 
-from textattack.attack_recipes import AttackRecipe
 
 from seqattack.search import NERGreedyWordSwapWIR
 from seqattack.utils import postprocess_ner_output

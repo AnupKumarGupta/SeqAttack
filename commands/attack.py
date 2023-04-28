@@ -10,10 +10,7 @@ from seqattack.attacks import (
     NERCLARE,
     BertAttackNER,
     NERBAEGarg2019,
-    NERSCPNParaphrase,
-    MorpheusTan2020NER,
     NERTextFoolerJin2019,
-    NERDeepWordBugGao2018
 )
 
 
