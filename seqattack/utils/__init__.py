@@ -70,7 +70,7 @@ def postprocess_ner_output(original_text, predictions, out_tokens):
     for token in original_tokens:
         token_start_index = prediction_idx
 
-        while current_out_token != token:
+        while current_out_token.lower() != token.lower():
             current_out_token = f"{current_out_token}{single_char_text[prediction_idx]}"
 
             prediction_label, prediction_confidence = single_char_predictions[prediction_idx]
