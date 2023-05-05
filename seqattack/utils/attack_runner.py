@@ -1,5 +1,5 @@
 import json
-
+import os
 
 class AttackRunner():
     def __init__(
@@ -103,7 +103,7 @@ class AttackRunner():
         return [labels_map[x] for x in pred]
 
     def save_results(self, attack_results):
-        with open(self.output_filename, "w") as out_file:
+        with open(os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack/outputs/NCBI-disease", self.output_filename), "w") as out_file:
             recipe_metadata = self.attack_args["recipe_metadata"]
             recipe_metadata["additional_constraints"] = [
                 str(const) for const in recipe_metadata["additional_constraints"]

@@ -1,10 +1,14 @@
+import os.path
+
 import click
 import random
 
+from typing import Dict, List
 from seqattack.models import NERModelWrapper
-from seqattack.datasets import NERHuggingFaceDataset
+from seqattack.datasets import NERHuggingFaceDatasetForBioBERT, NERHuggingFaceDataset
 from seqattack.utils.attack_runner import AttackRunner
 from seqattack.goal_functions import get_goal_function
+from seqattack.utils import postprocess_ner_output
 
 from seqattack.attacks import (
     NERCLARE,
@@ -12,6 +16,26 @@ from seqattack.attacks import (
     NERBAEGarg2019,
     NERTextFoolerJin2019,
 )
+from transformers import (
+    AutoConfig,
+    AutoModelForTokenClassification,
+    AutoTokenizer
+)
+
+attack_mode = True
+
+
+def get_labels(path: str) -> List[str]:
+    if path:
+        with open(path, "r") as f:
+            labels = f.read().splitlines()
+            labels = [i + '-bio' if i != 'O' else 'O' for i in labels]
+        if "O" not in labels:
+            labels = ["O"] + labels
+        return labels
+    else:
+        # return ["O", "B-MISC", "I-MISC", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC"]
+        return ["O", "B-bio", "I-bio"]
 
 
 @click.group()
@@ -41,19 +65,54 @@ def attack(
     random.seed(random_seed)
 
     goal_function_cls = get_goal_function(goal_function)
-    dataset = NERHuggingFaceDataset.from_config_file(
-        dataset_config,
-        num_examples=num_examples
-    )
+
+    if attack_mode:
+        model_name_or_path = os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack", model_name)
+    else:
+        model_name_or_path = model_name
+
+    if attack_mode:
+        dataset = NERHuggingFaceDatasetForBioBERT.from_tsv_file(
+            dataset_config
+        )
+    else:
+        dataset = NERHuggingFaceDataset.from_config_file(
+            dataset_config,
+            num_examples=num_examples
+        )
 
     # Load model and tokenizer
-    tokenizer, model = NERModelWrapper.load_huggingface_model(model_name)
+    if attack_mode:
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name_or_path,
+        )
+
+        labels_path = "/Users/anupkumargupta/PycharmProjects/SeqAttack/datasets/NCBI-disease/labels.txt"
+        labels = get_labels(labels_path)
+        label_map: Dict[int, str] = {i: label for i, label in enumerate(labels)}
+        num_labels = len(labels)
+        config = AutoConfig.from_pretrained(
+            model_name_or_path,
+            num_labels=num_labels,
+            id2label=label_map,
+            label2id={label: i for i, label in enumerate(labels)},
+            cache_dir=None,
+        )
+        model = AutoModelForTokenClassification.from_pretrained(
+            model_name_or_path,
+            config=config
+        )
+
+        model = NERModelWrapper(model=model, tokenizer=tokenizer, name=model_name,
+                                postprocess_func=postprocess_ner_output)
+    else:
+        tokenizer, model = NERModelWrapper.load_huggingface_model(model_name)
 
     ctx.ensure_object(dict)
     ctx.obj["attack_args"] = {
         "random_seed": random_seed,
         "model": model,
-        "model_name": model_name,
+        "model_name": model_name_or_path,
         "tokenizer": tokenizer,
         "goal_function_class": goal_function_cls,
         "use_cache": cache,
