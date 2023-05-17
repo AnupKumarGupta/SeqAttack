@@ -67,7 +67,8 @@ def attack(
     goal_function_cls = get_goal_function(goal_function)
 
     if attack_mode:
-        model_name_or_path = os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack", model_name)
+        # model_name_or_path = os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack", model_name)
+        model_name_or_path = model_name
     else:
         model_name_or_path = model_name
 
@@ -87,7 +88,7 @@ def attack(
             model_name_or_path,
         )
 
-        labels_path = "/Users/anupkumargupta/PycharmProjects/SeqAttack/datasets/NCBI-disease/labels.txt"
+        labels_path = "datasets/NCBI-disease/labels.txt" # /Users/anupkumargupta/PycharmProjects/SeqAttack/
         labels = get_labels(labels_path)
         label_map: Dict[int, str] = {i: label for i, label in enumerate(labels)}
         num_labels = len(labels)

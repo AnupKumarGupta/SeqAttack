@@ -180,9 +180,12 @@ class NERHuggingFaceDatasetForBioBERT(NERDataset):
 
     @staticmethod
     def from_tsv_file(path, num_examples=None):
-        dir_path = "/Users/anupkumargupta/PycharmProjects/SeqAttack"
-        labels_path = os.path.join(dir_path, path, "labels.txt")
-        inputs_path = os.path.join(dir_path, path, "test.tsv")
+        # dir_path = "/Users/anupkumargupta/PycharmProjects/SeqAttack"
+        # labels_path = os.path.join(dir_path, path, "labels.txt")
+        # inputs_path = os.path.join(dir_path, path, "test.tsv")
+
+        labels_path = os.path.join(path, "labels.txt")
+        inputs_path = os.path.join(path, "test.tsv")
         labels_dataframe = pd.read_csv(labels_path, header=None)
         label_names = labels_dataframe[0].tolist()
 

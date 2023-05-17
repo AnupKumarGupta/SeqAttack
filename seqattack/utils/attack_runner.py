@@ -1,5 +1,6 @@
 import json
 import os
+from tqdm import tqdm
 
 class AttackRunner():
     def __init__(
@@ -20,8 +21,8 @@ class AttackRunner():
         print("*****************************************")
         print(f"Starting attack on {self.dataset.name}")
         print("*****************************************")
-
-        for sample, ground_truth in self.dataset.tolist():
+        print(len(self.dataset.tolist()))
+        for sample, ground_truth in tqdm(self.dataset.tolist()):
             sample_labels = self.__prediction_to_labels(
                 ground_truth,
                 self.dataset.label_names
@@ -103,7 +104,8 @@ class AttackRunner():
         return [labels_map[x] for x in pred]
 
     def save_results(self, attack_results):
-        with open(os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack/outputs/NCBI-disease", self.output_filename), "w") as out_file:
+        # os.path.join("/Users/anupkumargupta/PycharmProjects/SeqAttack/outputs/NCBI-disease", self.output_filename)
+        with open(self.output_filename, "w") as out_file:
             recipe_metadata = self.attack_args["recipe_metadata"]
             recipe_metadata["additional_constraints"] = [
                 str(const) for const in recipe_metadata["additional_constraints"]
